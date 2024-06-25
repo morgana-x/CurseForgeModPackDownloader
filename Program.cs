@@ -67,7 +67,7 @@ public partial class Program
             AllowTrailingCommas = true,
            
         };
-        Console.WriteLine(jsonText);
+    
         packMetaData metaData = JsonSerializer.Deserialize<packMetaData>(jsonText, options);
 
         Console.ForegroundColor = ConsoleColor.Green;
@@ -78,17 +78,22 @@ public partial class Program
         Console.ForegroundColor = ConsoleColor.Gray;
 
         //CookieContainer cookie = cookies();
-        string downloadFolder = Directory.GetParent(zzipFileLocation).FullName + "\\" + "minecraftDownload";
+        string downloadFolder = Directory.GetParent(zzipFileLocation).FullName + "\\" + Path.GetFileName(zzipFileLocation) + "_downloaded";
 
         Directory.CreateDirectory(downloadFolder);
-        string cookie = "Unique_ID_v2=64df25e6ab7841619bb8e09bea298e24; AWSALB=LZ2InFtPhNhk9eLFza56olau12nMoU2J8TpD29Med04QQXWM4tRt6BXL03msaCYoc4BAPgFGOCSyJz3HTCfMEPgiFGKBs6rPmTB8KI6oxpAjI+vMBfFw7j3xYWRU; AWSALBCORS=LZ2InFtPhNhk9eLFza56olau12nMoU2J8TpD29Med04QQXWM4tRt6BXL03msaCYoc4BAPgFGOCSyJz3HTCfMEPgiFGKBs6rPmTB8KI6oxpAjI+vMBfFw7j3xYWRU; __cf_bm=4IouV.sj7Os_quYvFx1gG1nAxOzumGvPYzQlHdeK6e4-1719326801-1.0.1.1-fUcI_MxyfvuEVEAAYd7laku0G0CTRuBC_UBvJ8jlf0RzUokh2svdPqxDp2tEVSdoPxIApcTNHly.OOR5MFBIXAKI17VSSN6jLuzxHuXSej0";
         foreach (var file in metaData.files)
         {
-            Console.WriteLine("File Project Id: " + file.projectID);
-            Console.WriteLine("File File Id: " + file.fileID);
-            var task = DownloadCurseForgemod(cookie, file.projectID, file.fileID, downloadFolder + "\\");
+            Console.CursorTop = 5;
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("Downloaded mod (" + metaData.files.IndexOf(file) + "/" + metaData.files.Count + ")");
+            var task = DownloadCurseForgemod( file.projectID, file.fileID, downloadFolder);
             task.Wait();
         }
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Finished downloading!");
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.WriteLine("Press any key to close!");
+        Console.ReadLine();
     }
     public static string fileNamePattern = @"/([^/]+)\.jar";
     public class MyWebClient : WebClient
@@ -100,7 +105,7 @@ public partial class Program
             return response;
         }
     }
-    public static async Task DownloadCurseForgemod(string cookies, int projectId, int fileId, string downloadLocation)
+    public static async Task DownloadCurseForgemod( int projectId, int fileId, string downloadLocation)
     {
         string url = $"https://www.curseforge.com/api/v1/mods/{projectId}/files/{fileId}/download";
 
@@ -120,6 +125,7 @@ public partial class Program
         }
         catch (Exception e) 
         {
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(e.ToString());    
         }
     }
