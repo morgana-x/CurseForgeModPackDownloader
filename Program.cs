@@ -79,7 +79,13 @@ public partial class Program
 
         //CookieContainer cookie = cookies();
         string downloadFolder = Directory.GetParent(zzipFileLocation).FullName + "\\" + Path.GetFileName(zzipFileLocation) + "_downloaded";
-
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("Do you want to install this directly to your minecraft mod folder in appdata?\nPress Y for yes, anything else for no");
+        if (Console.ReadKey().KeyChar == 'y')
+        {
+            downloadFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\.minecraft\\mods\\";
+            Console.WriteLine("New destination set to " + downloadFolder);
+        }
         Directory.CreateDirectory(downloadFolder);
         foreach (var file in metaData.files)
         {
